@@ -18,7 +18,8 @@ const int WIN_HEIGHT = 480;
 const char *vert_shader_src =
 "#version 330 core\n\
 layout(location = 0) in vec4 pos;\n\
-void main(void){ gl_Position = pos; };";
+uniform mat4 model;\n\
+void main(void){ gl_Position = model * pos; };";
 
 const char *frag_shader_src =
 "#version 330 core\n\
@@ -88,7 +89,7 @@ int main(int argc, char **argv){
 	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
 		0, NULL, GL_TRUE);
 #endif
-	glClearColor(1, 0, 0, 1);
+	glClearColor(0, 0, 0, 1);
 
 	//Model's vao and vbo
 	GLuint model[2];
@@ -115,8 +116,12 @@ int main(int argc, char **argv){
 	glDeleteShader(vshader);
 	glDeleteShader(fshader);
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	mat4_t model_mat = mat4_translate(vec4_new(-0.5, -0.5, 0, 0));
 	glUseProgram(program);
+	GLuint model_unif = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(model_unif, 1, GL_FALSE, (GLfloat*)model_mat.col);
+
+	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	SDL_GL_SwapWindow(win);
 	check_GL_error("Post Draw");
