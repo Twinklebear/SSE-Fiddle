@@ -113,8 +113,8 @@ static inline mat4_t mat4_rotate(float d, vec4_t v){
 	float c = cosf(d);
 	float s = sinf(d);
 	v = vec4_normalize(v);
-	float ALIGN_16 cols[16] = {	c + powf(v.f[0], 2.0) * (1 - c),
-		v.f[1] * v.f[0] * (1 - c) + v.f[2] * s,	v.f[2] * v.f[0] * (1 - c) - v.f[1] * s, 0,
+	float ALIGN_16 cols[16] = { c + powf(v.f[0], 2.0) * (1 - c),
+		v.f[1] * v.f[0] * (1 - c) + v.f[2] * s, v.f[2] * v.f[0] * (1 - c) - v.f[1] * s, 0,
 		v.f[0] * v.f[1] * (1 - c) - v.f[2] * s, c + powf(v.f[1], 2.0) * (1 - c),
 		v.f[2] * v.f[1] * (1 - c) + v.f[0] * s, 0,
 		v.f[0] * v.f[2] * (1 - c) + v.f[1] * s, v.f[1] * v.f[2] * (1 - c) - v.f[0] * s,
