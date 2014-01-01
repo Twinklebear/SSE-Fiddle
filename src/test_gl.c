@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include <GL/glew.h>
+
+#ifdef __linux__
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#else
 #include <SDL.h>
+#include <SDL_opengl.h>
+#endif
+
 #include "vec4.h"
 #include "mat4.h"
 
@@ -25,9 +33,20 @@ char* read_file(const char *fname);
 GLint make_shader(const char *src, GLenum type);
 /* Link the shaders into a program, return -1 on failure */
 GLint make_program(GLuint vert, GLuint frag);
+/* OpenGL debug callback */
+#ifdef _WIN32
+void APIENTRY gl_debug_callback(GLenum src, GLenum type, GLuint id, GLenum severity,
+	GLsizei len, const GLchar *msg, GLvoid *usr);
+#else
+void gl_debug_callback(GLenum src, GLenum type, GLuint id, GLenum severity,
+	GLsizei len, const GLchar *msg, GLvoid *usr);
+#endif
 
 int main(int argc, char **argv){
 	/* vertices for a triangle */
+	/* Why does triangle[] = { vec4_new(...) } result in a segfault when returning
+	 * from _mm_load_ps?
+	 */
 	vec4_t triangle[3];
 	triangle[0] = vec4_new(0, 0, 0, 1);
 	triangle[1] = vec4_new(1, 0, 0, 1);
@@ -40,6 +59,9 @@ int main(int argc, char **argv){
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#ifdef DEBUG
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
 
 	SDL_Window *win = SDL_CreateWindow("SSE GL Test", SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_OPENGL);
@@ -60,10 +82,13 @@ int main(int argc, char **argv){
 		return 1;
 	}
 	check_GL_error("Post GLEW init");
-
-	glClearColor(0, 0, 0, 1);
-	glClearDepth(1);
-	glEnable(GL_DEPTH_TEST);
+#ifdef DEBUG
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+	glDebugMessageCallbackARB(gl_debug_callback, NULL);
+	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE,
+		0, NULL, GL_TRUE);
+#endif
+	glClearColor(1, 0, 0, 1);
 
 	//Model's vao and vbo
 	GLuint model[2];
@@ -74,6 +99,9 @@ int main(int argc, char **argv){
 	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), triangle, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	if (check_GL_error("Setup buffers")){
+		return 1;
+	}
 
 	GLint vshader = make_shader(vert_shader_src, GL_VERTEX_SHADER);
 	GLint fshader = make_shader(frag_shader_src, GL_FRAGMENT_SHADER);
@@ -87,6 +115,13 @@ int main(int argc, char **argv){
 	glDeleteShader(vshader);
 	glDeleteShader(fshader);
 
+	glClear(GL_COLOR_BUFFER_BIT);
+	glUseProgram(program);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	SDL_GL_SwapWindow(win);
+	check_GL_error("Post Draw");
+
+	SDL_Delay(1500);
 
 	glDeleteProgram(program);
 	glDeleteVertexArrays(1, model);
@@ -180,5 +215,64 @@ GLint make_program(GLuint vert, GLuint frag){
 		return -1;
 	}
 	return prog;
+}
+#ifdef _WIN32
+void APIENTRY gl_debug_callback(GLenum src, GLenum type, GLuint id, GLenum severity,
+	GLsizei len, const GLchar *msg, GLvoid *usr)
+#else
+void gl_debug_callback(GLenum src, GLenum type, GLuint id, GLenum severity,
+	GLsizei len, const GLchar *msg, GLvoid *usr)
+#endif
+{
+	fprintf(stderr, "OpenGL Debug Msg: ");
+	switch (severity){
+	case GL_DEBUG_SEVERITY_HIGH_ARB:
+		fprintf(stderr, "High severity ");
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+		fprintf(stderr, "Medium severity ");
+		break;
+	case GL_DEBUG_SEVERITY_LOW_ARB:
+		fprintf(stderr, "Low severity ");
+	}
+	switch (src){
+	case GL_DEBUG_SOURCE_API_ARB:
+		fprintf(stderr, "API ");
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+		fprintf(stderr, "Window system ");
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+		fprintf(stderr, "Shader compiler ");
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+		fprintf(stderr, "Third party ");
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION_ARB:
+		fprintf(stderr, "Application ");
+		break;
+	default:
+		fprintf(stderr, "Other ");
+	}
+	switch (type){
+	case GL_DEBUG_TYPE_ERROR_ARB:
+		fprintf(stderr, "Error ");
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+		fprintf(stderr, "Deprecated behavior ");
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+		fprintf(stderr, "Undefined behavior ");
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY_ARB:
+		fprintf(stderr, "Portability ");
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+		fprintf(stderr, "Performance ");
+		break;
+	default:
+		fprintf(stderr, "Other ");
+	}
+	fprintf(stderr, ":\n\t%s\n", msg);
 }
 

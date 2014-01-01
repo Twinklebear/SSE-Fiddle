@@ -12,9 +12,10 @@
 
 /* 4x4 matrix stored in column major order
  */
-typedef struct mat4_t {
-	vec4_t ALIGN_16 col[4];
-} mat4_t;
+struct mat4_t {
+	vec4_t col[4];
+} ALIGN_16;
+typedef struct mat4_t mat4_t;
 /* Create a new mat4, the matrix will be the identity matrix
  */
 static inline mat4_t mat4_new(void){
