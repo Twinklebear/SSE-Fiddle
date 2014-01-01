@@ -37,7 +37,6 @@ static inline vec4_t vec4_new(float x, float y, float z, float w){
 	vec4_t v;
 	/* We need things to be 16-byte aligned, so make sure it is */
 	float ALIGN_16 f[4] = { x, y, z, w };
-	//Why does this piece of shit crash on return?
 	v.v = _mm_load_ps(f);
 	return v;
 }
