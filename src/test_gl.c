@@ -17,7 +17,6 @@ const char *frag_shader_src =
 out vec4 color;\n\
 void main(void){ color = vec4(1.f, 1.f, 1.f, 1.f); }";
 
-
 /* Check if an OpenGL error occured, if one occured log it w/ the msg and return 1 */
 int check_GL_error(const char *msg);
 /* Read all contents from a file */

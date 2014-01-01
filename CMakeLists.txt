@@ -6,7 +6,7 @@ project(SSE_Stuff)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SSE_Stuff_SOURCE_DIR}/cmake")
 
 # Bump up warning levels appropriately for each compiler
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -std=c99 -msse")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -std=c99 -msse -march=native")
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	add_definitions(-DDEBUG)
