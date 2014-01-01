@@ -118,7 +118,8 @@ static inline mat4_t mat4_rotate(float d, vec4_t v){
 		v.f[0] * v.f[1] * (1 - c) - v.f[2] * s, c + powf(v.f[1], 2.0) * (1 - c),
 		v.f[2] * v.f[1] * (1 - c) + v.f[0] * s, 0,
 		v.f[0] * v.f[2] * (1 - c) + v.f[1] * s, v.f[1] * v.f[2] * (1 - c) - v.f[0] * s,
-		c + powf(v.f[2], 2.0) * (1 - c), 0
+		c + powf(v.f[2], 2.0) * (1 - c), 0,
+		0, 0, 0, 1
 	};
 	return mat4_from_cols(cols);
 }
