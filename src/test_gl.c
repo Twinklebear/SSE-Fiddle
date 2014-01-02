@@ -19,7 +19,7 @@ const char *vert_shader_src =
 "#version 330 core\n\
 layout(location = 0) in vec4 pos;\n\
 uniform mat4 model, view, proj;\n\
-void main(void){ gl_Position = proj * view * model * pos; };";
+void main(void){ gl_Position = proj * view * model * pos; }";
 
 const char *frag_shader_src =
 "#version 330 core\n\
