@@ -28,6 +28,9 @@
 union vec4_t {
 	__m128 v;
 	float f[4];
+	struct {
+		float x, y, z, w;
+	} c;
 } ALIGN_16;
 typedef union vec4_t vec4_t;
 /*
