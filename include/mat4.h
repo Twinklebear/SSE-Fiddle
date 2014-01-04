@@ -155,6 +155,11 @@ static inline mat4_t mat4_perspective(float fovY, float aspect, float n, float f
 	m.col[3].f[3] = 0;
 	return m;
 }
+/* See if the two matrices are equal. Mostly for testing really */
+static inline int mat4_eq(mat4_t a, mat4_t b){
+	return vec4_eq(a.col[0], b.col[0]) && vec4_eq(a.col[1], b.col[1])
+		&& vec4_eq(a.col[2], b.col[2]) && vec4_eq(a.col[3], b.col[3]);
+}
 /* Print out a matrix row by row */
 static inline void mat4_print(mat4_t m){
 	/* Transpose so it's easier to print row-by-row */
