@@ -10,14 +10,14 @@
 #define M_PI 3.14159265358979
 #endif
 
-/* 4x4 matrix stored in column major order
+/*
+ * 4x4 matrix stored in column major order
  */
 struct mat4_t {
 	vec4_t col[4];
 } ALIGN_16;
 typedef struct mat4_t mat4_t;
-/* Create a new mat4, the matrix will be the identity matrix
- */
+/* Create a new mat4, the matrix will be the identity matrix */
 static inline mat4_t mat4_new(void){
 	mat4_t m;
 	for (int i = 0; i < 4; ++i){
@@ -38,7 +38,8 @@ static inline mat4_t mat4_transpose(mat4_t m){
 	m.col[3].v = _mm_movehl_ps(tmp[3], tmp[1]);
 	return m;
 }
-/* Create a mat4 interpreting the values in the array passed as cols
+/*
+ * Create a mat4 interpreting the values in the array passed as cols
  * r must contain at least 16 floats and should be 16-byte aligned
  */
 static inline mat4_t mat4_from_cols(const float *c){
@@ -48,7 +49,8 @@ static inline mat4_t mat4_from_cols(const float *c){
 	}
 	return m;
 }
-/* Create a mat4 interpreting the values in the array passed as rows
+/*
+ * Create a mat4 interpreting the values in the array passed as rows
  * r must contain at least 16 floats and should be 16-byte aligned
  */
 static inline mat4_t mat4_from_rows(const float *r){
@@ -93,7 +95,7 @@ static inline vec4_t mat4_vec_mult(mat4_t a, vec4_t b){
 /* Create a translation matrix to move by the vector */
 static inline mat4_t mat4_translate(vec4_t v){
 	mat4_t m = mat4_new();
-	m.col[3].v = _mm_shuffle_ps(v.v, v.v, SHUFFLE_SELECT(0, 1, 2, 3));
+	m.col[3].v = _mm_shuffle_ps(v.v, v.v, _MM_SHUFFLE(0, 1, 2, 3));
 	m.col[3].f[3] = 1;
 	return m;
 }
@@ -105,7 +107,8 @@ static inline mat4_t mat4_scale(float x, float y, float z){
 	m.col[2].f[2] = z;
 	return m;
 }
-/* Create the rotation matrix to rotate by d degrees about the vector v
+/*
+ * Create the rotation matrix to rotate by d degrees about the vector v
  * (v.w should be 0)
  */
 static inline mat4_t mat4_rotate(float d, vec4_t v){
@@ -123,7 +126,8 @@ static inline mat4_t mat4_rotate(float d, vec4_t v){
 	};
 	return mat4_from_cols(cols);
 }
-/* Create the look at matrix with the camera at eye, looking at center and with
+/*
+ * Create the look at matrix with the camera at eye, looking at center and with
  * up as the camera's up vector. The w coord for each vector should be 0
  */
 static inline mat4_t mat4_look_at(vec4_t eye, vec4_t center, vec4_t up){
