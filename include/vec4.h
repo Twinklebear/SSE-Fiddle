@@ -6,21 +6,18 @@
 #include <math.h>
 
 #define ALIGN_16 __attribute__((aligned(16)))
-/*
- * Macro to select which components will be in the result of a _mm_shuffle_ps(a, b, SHUFFLE_SELECT(A, B, C, D))
+/* Macro to select which components will be in the result of a _mm_shuffle_ps(a, b, SHUFFLE_SELECT(A, B, C, D))
  * the resulting vector will contain: (a[A], a[B], b[C], b[D])
  * Valid values for A, B, C, D are [0, 3]
  */
 #define SHUFFLE_SELECT(A, B, C, D) ((A) | ((B) << 2) | ((C) << 4) | ((D) << 6))
-/*
- * Retrieve a float at some index from a __m128 vector, valid indices are [0, 3]
+/* Retrieve a float at some index from a __m128 vector, valid indices are [0, 3]
  * This is also the only valid way to access elements in C++ since accessing
  * inactive union members is undefined, but in C it's fine
  */
 #define VEC_AT(V, I) \
 	(_mm_cvtss_f32(_mm_shuffle_ps((V), (V), SHUFFLE_SELECT((I), (I), (I), (I)))))
-/*
- * Basic 4 component vector. Individual components should be accessed
+/* Basic 4 component vector. Individual components should be accessed
  * via VEC_AT(vector.v, index) in C++ and the setter functions should be used
  * in C++. However in C accessing inactive union members is defined behavior
  * so it's ok
@@ -33,8 +30,7 @@ union vec4_t {
 	} c;
 } ALIGN_16;
 typedef union vec4_t vec4_t;
-/*
- * Create a new 4 component vector
+/* Create a new 4 component vector
  */
 static inline vec4_t vec4_new(float x, float y, float z, float w){
 	vec4_t v;
@@ -43,8 +39,7 @@ static inline vec4_t vec4_new(float x, float y, float z, float w){
 	v.v = _mm_load_ps(f);
 	return v;
 }
-/*
- * Set the components in the vector individually
+/* Set the components in the vector individually
  * This would only be necessary in C++ where accessing inactive
  * union members is UB
  */
@@ -98,8 +93,7 @@ static inline vec4_t vec4_normalize(vec4_t a){
 	float l = vec4_len(a);
 	return vec4_scale(a, 1.f / l);
 }
-/*
- * For the cross product the vector4's are treated as regular 3-vectors, and the
+/* For the cross product the vector4's are treated as regular 3-vectors, and the
  * w component is set to 0
  */
 static inline vec4_t vec4_cross(vec4_t a, vec4_t b){
